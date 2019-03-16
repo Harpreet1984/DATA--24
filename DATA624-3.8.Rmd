@@ -1,0 +1,67 @@
+---
+title: "DATA624 - Excercise 3.8"
+author: "Harpreet Shoker"
+output:
+  pdf_document: default
+  html_document:
+    highlight: pygments
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo =TRUE)
+```
+
+### For your retail time series (from Exercise 3 in Section 2.10):
+
+Loading the reatil data
+```{r}
+retaildata <- readxl::read_excel("retail.xlsx", skip=1)
+myts <- ts(retaildata[,"A3349873A"],
+  frequency=12, start=c(1982,4))
+```
+##### a) Split the data into two parts using
+
+```{r }
+myts.train <- window(myts, end=c(2010,12))
+myts.test <- window(myts, start=2011)
+```
+
+##### b) Check that your data have been split appropriately by producing the following plot.
+
+```{r}
+library(forecast)
+autoplot(myts) + autolayer(myts.train, series="Training") +
+  autolayer(myts.test, series="Test")
+```
+
+##### c) Calculate forecasts using snaive applied to myts.train.
+
+```{r }
+fc <- snaive(myts.train)
+```
+
+##### d) Compare the accuracy of your forecasts against the actual values stored in myts.test.
+
+```{r }
+accuracy(fc,myts.test)
+```
+
+##### e) Check the residuals.Do the residuals appear to be uncorrelated and normally distributed?
+
+```{r }
+checkresiduals(fc)
+```
+
+From the above it seems like residuals are correlated to each other.
+Residuals are not normally distributed.
+
+##### f) How sensitive are the accuracy measures to the training/test split?
+
+```{r }
+myts2.train <- window(myts, end=c(2011,12))
+myts2.test <- window(myts, start=2012)
+fc2 <- snaive(myts2.train)
+accuracy(fc2,myts.test)
+```
+The accuracy measures are sensitive to the training/test split. Here we changed the train/test split percentage and run the accuracy check again and that reslts in low values in accuracy measure indicators. Comparing this to original matrix clearly indicates that the measures are sensitive to the split.
